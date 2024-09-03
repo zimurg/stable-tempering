@@ -65,7 +65,7 @@ def stable_tempering(pipeline,
                      metrics=True,
                     ):
     
-    prompt=stable_tempering.prompt_prepare(prompts)
+    prompt=prompt_prepare(prompts)
     generator = torch.Generator(device="cuda").manual_seed(seed)
 
     if full_inference==False:
