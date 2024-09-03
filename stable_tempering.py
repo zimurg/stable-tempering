@@ -51,7 +51,7 @@ def noising_latents(pipeline, latents, masks, mean_probabilities, betas, k=1, co
 # Función principal
 
 def stable_tempering(pipeline,
-                     prompt,
+                     prompts,
                      negative="Deformed, ugly, bad quality",
                      CFG=7.5,
                      CFG_rescale=8,
