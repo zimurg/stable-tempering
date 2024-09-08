@@ -31,7 +31,7 @@ def update_requirements():
     marker_file = Path(".requirements_installed")
     marker_file.touch()
 
-def initialize_tempered_inference(prompts, steps, stop_time, backsteps,k,CFG_rescale):
+def initialize_tempered_inference(prompts, seed=2024, steps=20, stop_time=15, backsteps=5, k=4, CFG_rescale=10):
     from loaders import SD_loader
     import stable_tempering
 
@@ -40,6 +40,7 @@ def initialize_tempered_inference(prompts, steps, stop_time, backsteps,k,CFG_res
     pipeline=SD_loader()
     stable_tempering.stable_tempering(
         pipeline=pipeline,
+        seed=seed
         prompts=prompts,
         steps=steps,
         stop_time=stop_time,
@@ -84,18 +85,25 @@ if __name__ == "__main__":
     if args.update:
         update_requirements()
         
-    elif args.tempered_inference:
+    if args.tempered_inference:
         if not args.prompts:
             print("Error: Debe proporcionarse un prompt o lista de prompts.")
             sys.exit(1)
             
         initialize_tempered_inference(args.prompts,
-                                      args.steps,
-                                      args.stoptime,
-                                      args.backsteps,
-                                      args.k, args.cfg_rescale)
+                                    seed=args.seed,
+                                    steps=args.steps,
+                                    stop_time=args.stoptime,
+                                    backsteps=args.backsteps,
+                                    k=args.k,
+                                    CFG_rescale=args.cfg_rescale
+                                    )
         
     elif args.evaluate:
+        if not args.prompts:
+            print("Error: Debe proporcionarse un prompt o lista de prompts.")
+            sys.exit(1)
+
         initialize_inference_test(args.prompts, 
                                   seed=args.seed,
                                   steps=args.steps,

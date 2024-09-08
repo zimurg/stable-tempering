@@ -21,14 +21,14 @@ def segment_image(image, prompts, processor, model):
     processor.image_processor.size = original_size #Aseguramos que el tamaño de los logits coincida con la imagen
 
     inputs = processor(text=prompts, images=[image] * len(prompts), return_tensors="pt")
-    print("Processed image size:", inputs["pixel_values"].shape)
+    print("Tamaño de la imagen procesada:", inputs["pixel_values"].shape)
 
     with torch.no_grad():
         outputs = model(**inputs)
 
     if outputs.logits.shape[-2:] != original_size: #En caso de que no coincidan los tamaños de máscaras e imagen a la salida
         logits = F.interpolate(logits, size=original_size, mode='bilinear', align_corners=False)
-        print("Logits size after resizing:", logits.shape)
+        print("Tamaño de los logits:", logits.shape)
 
     else:
         logits=outputs.logits
