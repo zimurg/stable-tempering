@@ -6,3 +6,4 @@ pillow
 matplotlib
 scipy
 torchmetrics
+pandas

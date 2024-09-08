@@ -87,7 +87,7 @@ def stable_tempering(pipeline,
 
         decoded_image = custom_callback.decoded_image
         decoded_image.show()
-        utils.save_image(decoded_image)
+        utils.save_image(decoded_image, prompt=prompt, seed=seed,step=stop_time)
 
         processor, segmentator_model=loaders.CLIPseg_loader() #TODO: sacar de esta función y llevar a otro lado para que sólo los cargue la primera vez, igual que los de SD
 

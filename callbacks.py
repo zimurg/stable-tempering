@@ -45,7 +45,7 @@ class CustomInterruptCallback:
         self.noise_magnitudes.append(total_noise)  # Debugging
 
         decoded_latents=visualizers.visualize_latents(latents)
-        utils.save_latents(decoded_latents,step_idx)
+        utils.save_latents(decoded_latents,step=step_idx, prompt="primera_pasada_")
         
 
         print(f"t= {step_idx}: Beta={beta}, Magnitud total del ruido={total_noise}, Valor mínimo de las latentes={latents.min().item()}, Valor máximo de las latentes={latents.max().item()}")
@@ -106,4 +106,4 @@ class CustomResumeCallback:
 
         else: 
             decoded_latents=visualizers.visualize_latents(latents)
-            utils.save_latents(decoded_latents,step_idx)    
+            utils.save_latents(decoded_latents,step=step_idx, prompt="segunda_pasada_")

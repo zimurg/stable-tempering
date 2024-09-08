@@ -20,20 +20,21 @@ def calculate_precision_npv(mean_probabilities, prompts):
         # Probabilidad promedio de las clases secundarias (falsos positivos)
         fp = mean_probabilities[class_index, :].sum().item() - tp
 
-        # Cálculo de la precisión
-        if tp + fp > 0:
-            precision = tp / (tp + fp)
-        else:
-            precision = 0
+        # True negatives: sum of probabilities of other classes being absent
+        tn = 0
+        for i in range(len(prompts)):
+            if i != class_index:
+                tn += (1 - mean_probabilities[i, class_index].item())
+
+        # False negatives: probability mass assigned to other classes for the true class area
+        fn = mean_probabilities[:, class_index].sum().item() - tp
+
+        # Calculate precision (PPV)
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
         precisions.append(precision)
 
-        # Cálculo del valor predictivo negativo (NPV)
-        secondary_classes = [i for i in range(len(prompts)) if i != class_index]
-        if len(secondary_classes) > 0:
-            # Calculamos la probabilidad de que no pertenezca a la clase secundaria
-            npv = np.mean([1 - mean_probabilities[class_index, i].item() for i in secondary_classes])
-        else:
-            npv = 0
+        # Calculate NPV in a similar manner
+        npv = tn / (tn + fn) if (tn + fn) > 0 else 0
         npvs.append(npv)
 
     avg_precision = np.mean(precisions)
@@ -54,16 +55,18 @@ def run_inference_test(prompts, seed=2024, steps=20, stop_time=15, backsteps=5, 
     npv_normal = []
     npv_tempered = []
 
-    generator = torch.Generator(device="cuda").manual_seed(seed)
     prompt=stable_tempering.prompt_prepare(prompts)
 
     for n in range(cycles):
         seed = seed + n * 9973  # Variabilidad en la semilla de forma determinista
 
         # Inferencia normal
+        generator = torch.Generator(device="cuda").manual_seed(seed)
         normal_image = pipeline(prompt=prompt,
                                 generator=generator,
                                 num_inference_steps=steps).images[0]
+
+        utils.save_image(normal_image, prompt="normal_gen_"+prompt, seed=seed)
 
         # Inferencia temperada
         tempered_image = stable_tempering.stable_tempering(
@@ -93,11 +96,15 @@ def run_inference_test(prompts, seed=2024, steps=20, stop_time=15, backsteps=5, 
             p_true = np.zeros(len(prompts))
             p_true[i] = 1
 
-            p_normal = mean_probs_normal[i].cpu().numpy()
-            p_tempered = mean_probs_tempered[i].cpu().numpy()
+            p_normal = np.clip(mean_probs_normal[i].cpu().numpy(), 1e-8, 1)
+            p_tempered = np.clip(mean_probs_tempered[i].cpu().numpy(), 1e-8, 1)
 
-            jsd_normal.append(jensenshannon(p_true, p_normal) ** 2)
-            jsd_tempered.append(jensenshannon(p_true, p_tempered) ** 2)
+            if np.any(p_normal > 0) and np.any(p_tempered > 0):
+                jsd_normal.append(jensenshannon(p_true, p_normal) ** 2)
+                jsd_tempered.append(jensenshannon(p_true, p_tempered) ** 2)
+            else:
+                jsd_normal.append(0)
+                jsd_tempered.append(0)
 
         # Llamada a la función modificada con probabilidades precalculadas
         precision_n, npv_n = calculate_precision_npv(mean_probs_normal, prompts)
@@ -125,7 +132,7 @@ def run_inference_test(prompts, seed=2024, steps=20, stop_time=15, backsteps=5, 
         'Temperada': [avg_jsd_tempered, avg_precision_tempered, avg_npv_tempered]
     })
 
-    fig, ax = plt.subplots(figsize=(8, 3))
+    fig, ax = plt.subplots(figsize=(10, 4))
     ax.axis('tight')
     ax.axis('off')
     table = ax.table(cellText=results.values, colLabels=results.columns, cellLoc='center', loc='center')
@@ -133,8 +140,8 @@ def run_inference_test(prompts, seed=2024, steps=20, stop_time=15, backsteps=5, 
     table.set_fontsize(12)
     table.scale(1.2, 1.2)
 
-    plt.title(f'Métricas Comparativas: Normal vs Temperada\n(Prompt: {prompts[0]})')
-    plt.savefig(f"Metricas{prompts[0]}.png")
+    plt.title(f'Métricas Comparativas: Normal vs Temperada\n(Prompt: {prompt})')
+    plt.savefig(f"Metricas_{prompt}.png")
     plt.show()
 
     # Curva PPV/NPV
@@ -146,7 +153,7 @@ def run_inference_test(prompts, seed=2024, steps=20, stop_time=15, backsteps=5, 
     plt.title("Curva PPV / NPV")
     plt.legend()
     plt.grid(True)
-    plt.savefig(f"PPVoNPV_graph_{prompts[0]}.png")
+    plt.savefig(f"PPVoNPV_graph_{prompt}.png")
     plt.show()
 
     return {
