@@ -40,7 +40,7 @@ def initialize_tempered_inference(prompts, seed=2024, steps=20, stop_time=15, ba
     pipeline=SD_loader()
     stable_tempering.stable_tempering(
         pipeline=pipeline,
-        seed=seed
+        seed=seed,
         prompts=prompts,
         steps=steps,
         stop_time=stop_time,
