@@ -64,6 +64,7 @@ def run_inference_test(prompts, seed=2024, steps=20, stop_time=15, backsteps=5, 
         generator = torch.Generator(device="cuda").manual_seed(seed)
         normal_image = pipeline(prompt=prompt,
                                 generator=generator,
+                                negative_prompt="Deformed, ugly, bad quality",
                                 num_inference_steps=steps).images[0]
 
         utils.save_image(normal_image, prompt="normal_gen_"+prompt, seed=seed)

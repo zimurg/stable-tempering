@@ -76,7 +76,7 @@ if __name__ == "__main__":
     parser.add_argument("--steps", type=int, default=20, help="Número de pasos de inferencia.")
     parser.add_argument("--stoptime", type=int, default=15, help="El paso en que se interrumpirá la inferencia.")
     parser.add_argument("--backsteps", type=int, default=5, help="Número de pasos de reinyección de ruido.")
-    parser.add_argument("--k", type=int, default=4, help="Hiperparámetro que controla la forma de la distribución de la que se extrae el ruido (mayor valor: más dispersión).")
+    parser.add_argument("--k", type=float, default=4, help="Hiperparámetro que controla la forma de la distribución de la que se extrae el ruido (mayor valor: más dispersión).")
     parser.add_argument("--cfg_rescale", type=float, default=10, help="Escala el valor del ruido para adaptarlo a los valores de CFG.")
 
     check_and_install_requirements()
