@@ -13,10 +13,5 @@ import matplotlib.pyplot as plt
 import torch.nn.functional as F
 
 
-
-def main():
-    print("Running main application...")
-    # Your main application logic here
-
 if __name__ == "__main__":
     main()

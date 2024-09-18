@@ -18,13 +18,39 @@ def prompt_prepare (prompts):
 # Funciones para la adición de ruido sobre latentes
 
 def compute_variance(p_1, p_other, k):
+    """
+    Calcula un valor alternativo para la varianza de epsilon (distribución gaussiana) en base a las probabilidades de las clases.
+
+    Args:
+    p_1: Probabilidad de la clase actual.
+    p_other: Probabilidad promedio de las demás clases.
+    k: Factor de control de ruido.
+
+    Returns:
+    variance: Varianza calculada.
+    """
     variance=k * - math.log(p_1 *(1-p_other))
     print(f'varianza={variance}')
     return variance
 
 
 def noising_latents(pipeline, latents, masks, mean_probabilities, betas, k=1, corr=0.0001, CFG_rescale=8):
+    """
+    Añade ruido a las latentes en las regiones indicadas por las máscaras, variando la magnitud del ruido según las probabilidades de clase.
 
+    Args:
+    pipeline (diffusers.StableDiffusionPipeline): Pipeline de Stable Diffusion.
+    latents (torch.tensor): Latentes actuales del modelo. Shape [id,channels,height,width].
+    masks (torch.Tensor): Un tensor de ints donde cada valor se corresponde con el índice de clase. Shape [height, width]
+    mean_probabilities (torch.Tensor): Un tensor que contiene las probabilidades promedio de cada clase para cada máscara. Shape [number of masks, number of classes]
+    betas (float): Parámetros beta del scheduler.
+    k (float): Constante que controla la magnitud de la varianza del ruido.
+    corr (float): Factor de corrección para evitar logaritmos indefinidos.
+    CFG_rescale (float): Factor de reescalado del ruido.
+
+    Returns:
+    noisy_latents (torch.tensor): Latentes ruidosas resultantes. Shape [id,channels,height,width].
+    """
     noisy_latents = latents.clone().detach().to('cuda')    
 
     for mask_value in np.unique(masks):
@@ -64,6 +90,30 @@ def stable_tempering(pipeline,
                      visualize_latents=True,
                      metrics=True,
                     ):
+
+    """
+    Realiza el proceso de inferencia temperada con Stable Diffusion, interrumpiendo la inferencia en [stop_time] utilizando los prompts concatenados con la expresión "next to"; generando [len(prompts)] máscaras de clase, realizando [backsteps] de inyección de ruido gaussiano con varianza recalculada, y completando la inferencia desde [stop_time - backsteps].
+
+    Args:
+    pipeline (diffusers.StableDiffusionPipeline): Pipeline de Stable Diffusion.
+    prompts (list): Prompts para la generación.
+    negative (str): Prompt negativo para influir en la calidad.
+    CFG (float): Escala de CFG para la generación.
+    CFG_rescale (float): Factor de reescalado del ruido.
+    steps (int): Número de pasos de inferencia.
+    stop_time (int): Paso en el que se interrumpirá la inferencia.
+    backsteps (int): Número de pasos de reinyección de ruido.
+    k (float): Constante que controla la magnitud de la varianza del ruido.
+    seed (int): Semilla para el control de la generación aleatoria.
+    full_inference (boolean): Si se establece en True, no se interrumpe la inferencia. TODO: pendiente de sustituir por un condicional para que sea full cuando no haya backsteps o stop_time sea >= steps
+    visualize_latents (boolean): Si True, visualiza los latentes durante el proceso. TODO: pendiente de implementar en caso de False
+    metrics (boolean): Si True, muestra métricas adicionales. TODO: pendiente de implementar en callbacks
+
+    Returns:
+    output: Imagen generada después de la inferencia temperada.
+    """
+
+
     
     prompt=prompt_prepare(prompts)
     generator = torch.Generator(device="cuda").manual_seed(seed)

@@ -10,6 +10,18 @@ import stable_tempering
 import utils
 
 def calculate_precision_npv(mean_probabilities, prompts):
+    """
+    Calcula la precisión/PPV y el NPV (Negative Predictive Value) de las predicciones.
+
+    Args:
+    mean_probabilities(torch.Tensor): Un tensor que contiene las probabilidades promedio de cada clase para cada máscara. Shape [number of masks, number of classes].
+    prompts (list of str): Cada entrada se corresponde con una de las clases a segmentar.
+
+    Returns:
+    avg_precision (float): Precisión promedio en la imagen.
+    avg_npv (float): NPV promedio en la imagen.
+    """
+
     precisions = []
     npvs = []
 
@@ -43,6 +55,35 @@ def calculate_precision_npv(mean_probabilities, prompts):
     return avg_precision, avg_npv
 
 def run_inference_test(prompts, seed=2024, steps=20, stop_time=15, backsteps=5, k=4, CFG_rescale=10, cycles=1, threshold=0.1):
+    """
+    Realiza [cycles] tests comparativos entre la inferencia normal y una inferencia temperada, generando métricas y gráficas para analizar los resultados.
+
+    Args:
+    prompts (list of str): Cada entrada se corresponde con una de las clases a segmentar.
+    seed (int): Semilla para el control de la generación aleatoria.
+    steps (int): Número de pasos de inferencia.
+    stop_time (int): Paso en el que se interrumpirá la inferencia.
+    backsteps (int): Número de pasos hacia atrás para reintroducir ruido.
+    k (float): Constante que controla la magnitud de la varianza del ruido.o.
+    CFG_rescale (float): Factor de reescalado del ruido.
+    cycles (int): Número de ciclos de inferencia o tests realizados. Las métricas finales se calculan combinando todos los ciclos.
+    threshold (float): Probabilidad mínima necesaria para que un píxel sea considerado como parte de una máscara.
+
+    Returns:
+    dict: un diccionario que contiene:
+        'JSD_normal' (float): promedio de la distancia Jensen-Shannon para las inferencias normales.
+        'JSD_tempered' (float): promedio de la distancia Jensen-Shannon para las inferencias temperadas.
+        'Precision_normal': promedio de la precisión/PPVpara las inferencias normales.
+        'NPV_normal': promedio del NPV para las inferencias normales.
+        'Precision_tempered': promedio de la precisión/PPVpara las inferencias temperadas.
+        'NPV_tempered': promedio del NPV para las inferencias temperadas.
+
+    Stores:
+    Metricas_{prompt} (.png): Imagen con el resultado de las métricas del ciclo.
+    PPVoNPV_graph_{prompt} (.png): Imagen con la gráfica de nube de puntos de los valores PPV/NPV de cada inferencia, diferenciados entre inferencias normales y temperadas.
+    """
+
+
     pipeline = loaders.SD_loader()
     processor, segmentator_model = loaders.CLIPseg_loader()
 

@@ -21,11 +21,14 @@ class CustomInterruptCallback:
         Raises:
         StopIteration: Provoca una excepción, interrumpiendo la inferencia.
     
-        Atributos:    
+        Attr:
         .latents (torch.Tensor): Latentes en el paso stop_time.
         .decoded_image (PIL.Image): Imagen decodificada por el VAE en el paso stop_time.
         .recorded_betas (list): Contiene los valores de la varianza entre [0:stop_time].
-        .noise_magnitude (list): magnitudes del ruido introducido entre [0:stop_time].    
+        .noise_magnitude (list): magnitudes del ruido introducido entre [0:stop_time].
+
+        Stores:
+        decoded_latents (.png): guarda una imagen con el estado de las latentes en cada paso. TODO: variar el nombre con el seed para que no se sobreescriban
         """
         self.stop_time = stop_time
         self.scheduler = scheduler
@@ -76,14 +79,14 @@ class CustomResumeCallback:
         latents (torch.Tensor): Las latentes que se introducirán como base para la inferencia
     
     
-        Atributos:    
+        Attr:
         .latents (torch.Tensor): Latentes en el paso stop_time.
         .decoded_image (PIL.Image): Imagen decodificada por el VAE en el paso stop_time.
         .recorded_betas (list): Contiene los valores de la varianza entre [0:stop_time].
         .noise_magnitude (list): magnitudes del ruido introducido entre [0:stop_time].  
     
-        Salidas:
-        
+        Stores:
+        decoded_latents (.png): guarda una imagen con el estado de las latentes en cada paso. TODO: variar el nombre con el seed para que no se sobreescriban
         """
         
         self.resume_step = resume_step
