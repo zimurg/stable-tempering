@@ -61,14 +61,14 @@ Este proyecto fue desarrollado por Alberto García Núñez como parte del Trabaj
 
 En este prototipo se ha incorporado código procedente de las siguientes fuentes, respetando las licencias de uso pertinentes:
 
-    @Librería Diffusers (von Platen et al 2022), disponible [aquí](https://github.com/huggingface/diffusers)
-    @Función de escalado de latentes sin VAE (Vass, 2024), disponible [aquí](https://huggingface.co/blog/TimothyAlexisVass/explaining-the-sdxl-latent-space)
-    @Tutorial de segmentación *Zero-Shot* con CLIPseg (Rogge, 2022), disponible [aquí](https://github.com/NielsRogge/Transformers-Tutorials/blob/master/CLIPSeg/Zero_shot_image_segmentation_with_CLIPSeg.ipynb)
+@Librería Diffusers (von Platen et al 2022), disponible [aquí](https://github.com/huggingface/diffusers)
+@Función de escalado de latentes sin VAE (Vass, 2024), disponible [aquí](https://huggingface.co/blog/TimothyAlexisVass/explaining-the-sdxl-latent-space)
+@Tutorial de segmentación *Zero-Shot* con CLIPseg (Rogge, 2022), disponible [aquí](https://github.com/NielsRogge/Transformers-Tutorials/blob/master/CLIPSeg/Zero_shot_image_segmentation_with_CLIPSeg.ipynb)
 
 Los modelos empleados en el despliegue por defecto se corresponden con:
 
-    @CompVis/stable-diffusion-v1-4 (Rombach, et al,2022), disponible [aquí](https://huggingface.co/CompVis/stable-diffusion-v1-4)
-    @CIDAS/clipseg-rd64-refined (CIDAS, 2022), disponible [aquí](https://huggingface.co/CIDAS/clipseg-rd64-refined)
+@CompVis/stable-diffusion-v1-4 (Rombach, et al,2022), disponible [aquí](https://huggingface.co/CompVis/stable-diffusion-v1-4)
+@CIDAS/clipseg-rd64-refined (CIDAS, 2022), disponible [aquí](https://huggingface.co/CIDAS/clipseg-rd64-refined)
 
 ## Disclaimer
 
