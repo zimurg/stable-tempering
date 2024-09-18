@@ -32,7 +32,7 @@ def segment_image(image, prompts, processor, model):
 
     else:
         logits=outputs.logits
-    corresponde con una de las clases a segmentar.
+
     return logits
 
 
